@@ -1,4 +1,6 @@
 # Linux System And Netwrok Programming
+
+![CI](https://github.com/tnsadithya/linux-sysnet-prog/actions/workflows/cmake-test.yml/badge.svg)
 This is a structured C/C++ project scaffold to practice and test **Linux system programming** and **network programming** concepts using:
 
 - ✅ CMake
