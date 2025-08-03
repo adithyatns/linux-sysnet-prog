@@ -1,0 +1,27 @@
+# Build
+build/
+*.o
+*.out
+*.a
+*.so
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+compile_commands.json
+
+# Editors
+*.swp
+*.swo
+.vscode/
+
+# Clang-Tidy and Format backups
+*~
+
+# Pre-commit logs
+.pre-commit-cache/
+
+# Unit test logs
+test/test-output.xml
