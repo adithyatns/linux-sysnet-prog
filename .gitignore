@@ -25,3 +25,11 @@ compile_commands.json
 
 # Unit test logs
 test/test-output.xml
+
+# Build / coverage / compiler db
+build/
+compile_commands.json
+*.gcda
+*.gcno
+*.info
+coverage/
