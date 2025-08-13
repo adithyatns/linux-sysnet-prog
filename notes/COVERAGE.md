@@ -7,6 +7,7 @@ This project enforces **100% line coverage** for all commits using both `gcovr` 
 ## How Coverage Works
 
 ### Pre-Commit Hook
+
 - The `.hooks/check_coverage.sh` script runs **before every commit**.
 - It:
   1. Builds the project with coverage flags.
@@ -21,6 +22,7 @@ This project enforces **100% line coverage** for all commits using both `gcovr` 
 ## Coverage Commands
 
 ### View quick coverage in terminal
+
 ```bash
 gcovr -r . --exclude 'test/' --txt --sort-uncovered
 Generate detailed HTML report
@@ -35,6 +37,7 @@ build/coverage/html/index.html
 ```
 
 ### Tips for Maintaining 100% Coverage
+
 Test all branches — success, failure, and edge cases.
 
 Use negative tests to hit error-handling code.
@@ -42,5 +45,6 @@ Use negative tests to hit error-handling code.
 Run pre-commit run --all-files before committing to check locally.
 
 ### Related Files
+
 .hooks/check_coverage.sh – pre-commit hook for coverage enforcement
 .pre-commit-config.yaml – hook configuration

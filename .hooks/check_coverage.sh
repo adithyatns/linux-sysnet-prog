@@ -1,42 +1,53 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
 
-# Ensure coverage tools are installed
-command -v lcov >/dev/null 2>&1 || { echo "lcov not installed"; exit 1; }
-command -v gcovr >/dev/null 2>&1 || { echo "gcovr not installed"; exit 1; }
+PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+BUILD_DIR="${PROJECT_ROOT}/build"
+COVER_DIR="${BUILD_DIR}/coverage"
+COVERAGE_MIN="${COVERAGE_MIN:-80}"   # change to 100 if you want strict
 
-# Clean previous coverage data
-rm -rf coverage
-mkdir -p coverage
+# Tools check
+command -v gcovr >/dev/null || { echo "gcovr not installed"; exit 1; }
+command -v lcov  >/dev/null || { echo "lcov not installed";  exit 1; }
+command -v genhtml >/dev/null || { echo "genhtml (lcov) not installed"; exit 1; }
 
-# Build with coverage flags
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
-cmake --build build
+# Clean coverage artifacts
+mkdir -p "${BUILD_DIR}"
+find "${BUILD_DIR}" -name "*.gcda" -delete || true
+rm -rf "${COVER_DIR}"
+mkdir -p "${COVER_DIR}"
 
-# Run all tests
-cd build
-ctest --output-on-failure
-if [ $? -ne 0 ]; then
-    echo "Tests failed. Commit aborted."
-    exit 1
-fi
-# Generate gcovr text output for quick check
+# Configure & build with coverage
+cmake -S "${PROJECT_ROOT}" -B "${BUILD_DIR}" \
+  -DCMAKE_BUILD_TYPE=Debug \
+  -DCMAKE_C_FLAGS="--coverage -O0 -g" \
+  -DCMAKE_CXX_FLAGS="--coverage -O0 -g"
+cmake --build "${BUILD_DIR}"
+
+# Run tests (serialize to avoid file races)
+ctest --test-dir "${BUILD_DIR}" --output-on-failure -j1
+
 echo "==== GCOVR Terminal Report ===="
-gcovr -r .. --exclude 'test/' --txt --sort-uncovered
-cd ..
-# Generate LCOV HTML report
+# IMPORTANT: point gcovr at the build dir for object files and the project root for sources
+gcovr \
+  --root "${PROJECT_ROOT}" \
+  --object-directory "${BUILD_DIR}" \
+  --exclude 'test/' \
+  --txt --sort-uncovered
+
+echo "==== Enforcing coverage >= ${COVERAGE_MIN}% ===="
+gcovr \
+  --root "${PROJECT_ROOT}" \
+  --object-directory "${BUILD_DIR}" \
+  --exclude 'test/' \
+  --fail-under-line "${COVERAGE_MIN}"
+
 echo "==== Generating LCOV HTML Report ===="
-lcov --capture --directory . --output-file coverage/coverage.info
+# Capture from build dir
+lcov --capture --directory "${BUILD_DIR}" --output-file "${COVER_DIR}/coverage.info"
+# Filter out tests and system headers
+lcov --remove "${COVER_DIR}/coverage.info" '*/test/*' '/usr/*' \
+     --output-file "${COVER_DIR}/coverage_filtered.info"
+genhtml "${COVER_DIR}/coverage_filtered.info" --output-directory "${COVER_DIR}/html"
 
-# Remove test files, system headers, and external libraries
-lcov --remove coverage/coverage.info \
-    '*/test/*' \
-    '/usr/*' \
-    --output-file coverage/coverage_filtered.info
-
-genhtml coverage/coverage_filtered.info --output-directory coverage/html
-
-# Fail if coverage < 100%
-gcovr -r .. --exclude 'test/' --fail-under-line 80
-
-echo "HTML report generated at: build/coverage/html/index.html"
+echo "HTML report: ${COVER_DIR}/html/index.html"
