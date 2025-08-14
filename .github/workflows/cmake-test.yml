@@ -46,9 +46,7 @@ jobs:
           gcovr --root . --object-directory build --exclude 'test/' --sort-uncovered
           echo "==== LCOV (src only ) ===="
           lcov --capture --directory build/src --output-file build/coverage/coverage.info
-          lcov --remove build/coverage/coverage.info '/usr/*' \
-               --output-file build/coverage/coverage_filtered.info
-          genhtml build/coverage/coverage_filtered.info --output-directory build/coverage/html
+          genhtml build/coverage/coverage.info --output-directory build/coverage/html
 
     - name: Upload HTML coverage artifact
       uses: actions/upload-artifact@v4
