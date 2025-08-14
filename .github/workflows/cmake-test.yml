@@ -42,7 +42,7 @@ jobs:
       run: ctest --output-on-failure
 
     - name: Generate coverage (gcovr + lcov)
-        run: |
+      run: |
           mkdir -p build/coverage
           echo "==== GCOVR ===="
           gcovr --root . --object-directory build --exclude 'test/' --txt --sort-uncovered
@@ -53,18 +53,18 @@ jobs:
           genhtml build/coverage/coverage_filtered.info --output-directory build/coverage/html
 
     - name: Upload HTML coverage artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-html
-          path: build/coverage/html
-          retention-days: 7
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-html
+        path: build/coverage/html
+        retention-days: 7
 
-      - name: Upload LCOV info (optional)
-        uses: actions/upload-artifact@v4
-        with:
-          name: lcov-info
-          path: build/coverage/coverage_filtered.info
-          retention-days: 30
+    - name: Upload LCOV info (optional)
+      uses: actions/upload-artifact@v4
+      with:
+        name: lcov-info
+        path: build/coverage/coverage_filtered.info
+        retention-days: 30
 
-      - name: Print coverage summary
-        run: gcovr --root . --object-directory build --exclude 'test/' --summary
+    - name: Print coverage summary
+      run: gcovr --root . --object-directory build --exclude 'test/' --summary
