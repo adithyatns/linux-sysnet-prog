@@ -43,7 +43,7 @@ jobs:
       run: |
           mkdir -p build/coverage
           echo "==== GCOVR ===="
-          gcovr --root . --object-directory build --exclude 'test/' --txt \
+          gcovr --root . --object-directory build --exclude 'test/' \
           --sort-key uncovered-number --fail-under-line 90
           echo "==== LCOV (src only ) ===="
           lcov --capture --directory build/src --output-file build/coverage/coverage.info
