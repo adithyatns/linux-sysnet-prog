@@ -54,13 +54,3 @@ jobs:
         name: coverage-html
         path: build/coverage/html
         retention-days: 7
-
-    - name: Upload LCOV info (optional)
-      uses: actions/upload-artifact@v4
-      with:
-        name: lcov-info
-        path: build/coverage/coverage_filtered.info
-        retention-days: 30
-
-    - name: Print coverage summary
-      run: gcovr --root . --object-directory build --exclude 'test/' --summary
