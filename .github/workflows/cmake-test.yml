@@ -17,7 +17,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y cmake make g++ clang-format clang-tidy
+        sudo apt-get install -y cmake make g++ clang-format clang-tidy lcov gcovr
 
     - name: Setup CppUTest
       run: |
@@ -29,7 +29,10 @@ jobs:
         cd ..
 
     - name: Configure project with CMake
-      run: cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+      run: cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+                -DCMAKE_BUILD_TYPE=Debug \
+                -DCMAKE_C_FLAGS="--coverage -O0 -g" \
+                -DCMAKE_CXX_FLAGS="--coverage -O0 -g"
 
     - name: Build the project
       run: cmake --build build
@@ -38,3 +41,30 @@ jobs:
       working-directory: build
       run: ctest --output-on-failure
 
+    - name: Generate coverage (gcovr + lcov)
+        run: |
+          mkdir -p build/coverage
+          echo "==== GCOVR ===="
+          gcovr --root . --object-directory build --exclude 'test/' --txt --sort-uncovered
+          echo "==== LCOV ===="
+          lcov --capture --directory build --output-file build/coverage/coverage.info
+          lcov --remove build/coverage/coverage.info '*/test/*' '/usr/*' \
+               --output-file build/coverage/coverage_filtered.info
+          genhtml build/coverage/coverage_filtered.info --output-directory build/coverage/html
+
+    - name: Upload HTML coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html
+          path: build/coverage/html
+          retention-days: 7
+
+      - name: Upload LCOV info (optional)
+        uses: actions/upload-artifact@v4
+        with:
+          name: lcov-info
+          path: build/coverage/coverage_filtered.info
+          retention-days: 30
+
+      - name: Print coverage summary
+        run: gcovr --root . --object-directory build --exclude 'test/' --summary
