@@ -31,3 +31,7 @@
 - this gives performance benifits as application will run faster, no overhead for each storage operation
 - refer to virtual memory chapter
   
+### File Atrributes
+
+- stat() system call is used for querying file metadata
+- 
