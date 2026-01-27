@@ -33,3 +33,6 @@ compile_commands.json
 *.gcno
 *.info
 coverage/
+
+# ignore tlpi folder
+tlpi/bin
