@@ -9,8 +9,8 @@ add_library(ch04_lib STATIC ch04_file_io/demo_logic.c)
 target_include_directories(ch04_lib PUBLIC ch04_file_io include)
 
 # 2. Build the main application (The regular binary)
-add_executable(syscall_demo ch04_file_io/syscall_demo.c)
-target_link_libraries(syscall_demo PRIVATE ch04_lib)
+#add_executable(syscall_demo ch04_file_io/syscall_demo.c)
+#target_link_libraries(syscall_demo PRIVATE ch04_lib)
 
 # 3. Enable Testing and add the test subdirectory
 enable_testing()

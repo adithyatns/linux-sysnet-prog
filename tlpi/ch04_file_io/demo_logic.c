@@ -22,9 +22,20 @@ int write_data_to_file(const char* filename, const char* data, int len) {
     //char *msg = "Hello from Kernel Space!\n";
     // Note: We must explicitly state how many bytes to write
     int bytes_written = write(fd, data, len); 
-
+    if(bytes_written < 0) {
+        perror("Write failed");
+        // Even if write fails, we should still close the file descriptor to avoid leaks
+        close(fd);
+        return -1;
+    }
+    if (bytes_written < len)
+    {
+        fprintf(stderr, "Partial write: only %d of %d bytes written\n", bytes_written, len);
+        // Handle partial write if necessary (e.g., retry logic), but for this demo, we just report it.
+    }
+    
     // 3. CLOSE (System Call)
     close(fd);
 
-    return 0; 
+    return bytes_written; // Return the number of bytes written, or -1 on error
 }
